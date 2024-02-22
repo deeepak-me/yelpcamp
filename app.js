@@ -38,10 +38,14 @@ app.get("/campgrounds/new", (req, res) => {
 
 //creating the end points,submitting
 
-app.post("/campgrounds", async (req, res) => {
-  const campground = new Campground(req.body.campground);
-  await campground.save();
-  res.redirect(`campgrounds/${campground._id}`);
+app.post("/campgrounds", async (req, res, next) => {
+  try {
+    const campground = new Campground(req.body.campground);
+    await campground.save();
+    res.redirect(`campgrounds/${campground._id}`);
+  } catch (e) {
+    next(e);
+  }
 });
 
 // show a single campground
@@ -72,6 +76,10 @@ app.delete("/campgrounds/:id", async (req, res) => {
   const { id } = req.params;
   await Campground.findByIdAndDelete(id);
   res.redirect("/campgrounds");
+});
+
+app.use((err, req, res, next) => {
+  res.send("Something Went wrong !!!");
 });
 
 app.listen(3000, () => {
